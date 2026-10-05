@@ -1,0 +1,52 @@
+ACTUALIZACIÓN: SECURITY + US-SA-15 + US-SA-17
+- Base: último TrueForm_API.zip recibido; funciones del equipo conservadas.
+- Basic Auth/BCrypt, roles de catálogo, CSRF y protección del dueño de los datos.
+- Comparación de dos meses, vista de resumen y exportación CSV.
+- Guía Postman y pruebas de regresión incluidas.
+- Compilación completa pendiente: descarga Maven bloqueada por DNS en este entorno.
+
+HISTORIAL DE LA VERSIÓN ANTERIOR (las notas de Security quedan reemplazadas por LEEME_PRIMERO.md):
+
+ARCHIVOS NUEVOS
+LEEME_PRIMERO.md
+PRUEBAS_POSTMAN.md
+TrueForm_Sencillo.postman_collection.json
+src/main/java/com/trueform/backend/controladores/EntrenamientoProgramadoController.java
+src/main/java/com/trueform/backend/controladores/FavoritoController.java
+src/main/java/com/trueform/backend/controladores/RegistroEntrenamientoController.java
+src/main/java/com/trueform/backend/dto/DescansoDTO.java
+src/main/java/com/trueform/backend/dto/EjercicioDTO.java
+src/main/java/com/trueform/backend/dto/EntrenamientoProgramadoDTO.java
+src/main/java/com/trueform/backend/dto/FavoritoDTO.java
+src/main/java/com/trueform/backend/dto/RegistroEntrenamientoDTO.java
+src/main/java/com/trueform/backend/dto/ResumenSemanalDTO.java
+src/main/java/com/trueform/backend/entidades/EntrenamientoProgramado.java
+src/main/java/com/trueform/backend/entidades/Favorito.java
+src/main/java/com/trueform/backend/entidades/RegistroEntrenamiento.java
+src/main/java/com/trueform/backend/repositorios/EntrenamientoProgramadoRepositorio.java
+src/main/java/com/trueform/backend/repositorios/FavoritoRepositorio.java
+src/main/java/com/trueform/backend/repositorios/RegistroEntrenamientoRepositorio.java
+src/main/java/com/trueform/backend/servicios/EntrenamientoProgramadoServicio.java
+src/main/java/com/trueform/backend/servicios/FavoritoServicio.java
+src/main/java/com/trueform/backend/servicios/RegistroEntrenamientoServicio.java
+
+ARCHIVOS ORIGINALES MODIFICADOS
+src/main/java/com/trueform/backend/config/ModelMapperConfig.java
+src/main/java/com/trueform/backend/controladores/AuthController.java
+src/main/java/com/trueform/backend/controladores/EjercicioController.java
+src/main/java/com/trueform/backend/controladores/ObjetivoController.java
+src/main/java/com/trueform/backend/controladores/OnboardingControlador.java
+src/main/java/com/trueform/backend/controladores/ProgresoController.java
+src/main/java/com/trueform/backend/controladores/RutinaController.java
+src/main/java/com/trueform/backend/controladores/RutinaEjercicioController.java
+src/main/java/com/trueform/backend/controladores/UsuarioController.java
+src/main/java/com/trueform/backend/dto/ActualizarUsuarioDTO.java
+src/main/java/com/trueform/backend/dto/RegistroUsuarioDTO.java
+src/main/java/com/trueform/backend/dto/UsuarioDTO.java
+src/main/java/com/trueform/backend/entidades/Usuario.java
+src/main/java/com/trueform/backend/repositorios/UsuarioRepositorio.java
+src/main/java/com/trueform/backend/servicios/OnboardingServicio.java
+src/main/java/com/trueform/backend/servicios/UsuarioServicio.java
+src/main/resources/application.properties
+
+Dependencias y versiones del pom.xml: idénticas al ZIP original.

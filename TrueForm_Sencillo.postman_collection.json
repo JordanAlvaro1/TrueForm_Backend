@@ -1,0 +1,368 @@
+{
+  "info": {
+    "name": "TrueForm - Security y progreso",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Configura email/password e IDs. Ejecuta Obtener CSRF primero. Basic se hereda; las escrituras añaden la cabecera CSRF. No exportes credenciales reales."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "idUsuario",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idRutina",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idEjercicio",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idRutinaEjercicio",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idFavorito",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idProgramacion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idRegistro",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "fecha",
+      "value": "2026-10-02",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrfHeader",
+      "value": "X-CSRF-TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "mesBase",
+      "value": "2026-08",
+      "type": "string"
+    },
+    {
+      "key": "mesComparado",
+      "value": "2026-09",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Obtener CSRF",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/csrf",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Token CSRF disponible\", function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set(\"csrfToken\", data.token); pm.collectionVariables.set(\"csrfHeader\", data.headerName); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guardar favorito",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/favoritos",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idUsuario\":{{idUsuario}},\"idEjercicio\":{{idEjercicio}}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Listar favoritos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/favoritos/usuario/{{idUsuario}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Quitar favorito",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/favoritos/{{idFavorito}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Programar entrenamiento",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/calendario",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idRutina\":{{idRutina}},\"fecha\":\"{{fecha}}\",\"estado\":\"pendiente\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Modificar programación",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/calendario",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idProgramacion\":{{idProgramacion}},\"idRutina\":{{idRutina}},\"fecha\":\"{{fecha}}\",\"estado\":\"completado\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar programación",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/calendario/{{idProgramacion}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Consultar calendario",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/calendario/usuario/{{idUsuario}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Resumen semanal",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/calendario/usuario/{{idUsuario}}/resumen?fecha={{fecha}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Eliminar programación",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/calendario/{{idProgramacion}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Registrar ejercicio realizado",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/registros-entrenamiento",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idRutina\":{{idRutina}},\"idEjercicio\":{{idEjercicio}},\"fecha\":\"{{fecha}}\",\"series\":3,\"repeticiones\":10,\"pesoKg\":20.00}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corregir registro",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/registros-entrenamiento",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idRegistro\":{{idRegistro}},\"idRutina\":{{idRutina}},\"idEjercicio\":{{idEjercicio}},\"fecha\":\"{{fecha}}\",\"series\":3,\"repeticiones\":10,\"pesoKg\":20.00}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar registro",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/registros-entrenamiento/{{idRegistro}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Historial de usuario",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/registros-entrenamiento/usuario/{{idUsuario}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Historial de ejercicio",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/registros-entrenamiento/usuario/{{idUsuario}}/ejercicio/{{idEjercicio}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Eliminar registro",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/registros-entrenamiento/{{idRegistro}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Alternativas por grupo muscular",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/ejercicios/{{idEjercicio}}/alternativas",
+        "header": []
+      }
+    },
+    {
+      "name": "Consultar descanso",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/rutina-ejercicios/{{idRutinaEjercicio}}/descanso",
+        "header": []
+      }
+    },
+    {
+      "name": "US-SA-15 y US-SA-17",
+      "item": [
+        {
+          "name": "Comparación mensual",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/progresos/usuario/{{idUsuario}}/comparacion-mensual?mesBase={{mesBase}}&mesComparado={{mesComparado}}"
+          }
+        },
+        {
+          "name": "Resumen de progreso",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/progresos/usuario/{{idUsuario}}/resumen"
+          }
+        },
+        {
+          "name": "Exportar resumen CSV",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/progresos/usuario/{{idUsuario}}/exportar"
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{email}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(pm.request.method)) {",
+          "  pm.request.headers.upsert({key: pm.collectionVariables.get('csrfHeader') || 'X-CSRF-TOKEN', value: pm.collectionVariables.get('csrfToken') || ''});",
+          "}"
+        ]
+      }
+    }
+  ]
+}

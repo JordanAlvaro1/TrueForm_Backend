@@ -21,8 +21,7 @@ import java.util.List;
 
 @Service
 public class RutinaServicio {
-    @Autowired
-    private AccesoServicio acceso;
+
     @Autowired
     private
     RutinaRepositorio rutinaRepositorio;
@@ -34,22 +33,22 @@ public class RutinaServicio {
     private ProgresoRepositorio progresoRepositorio;
 
     public List<Rutina> listar() {
-        return rutinaRepositorio.findByUsuario_IdUsuario(acceso.idActual());
+        return rutinaRepositorio.findAll();
     }
 
     public Rutina buscarPorId(Long id) {
         Rutina encontrado = rutinaRepositorio.findById(id).orElse(null);
-        if (encontrado != null) acceso.verificarUsuario(encontrado.getUsuario().getIdUsuario());
+
         return encontrado;
     }
 
     public Rutina registrar(Rutina rutina) {
-        acceso.verificarUsuario(rutina.getUsuario().getIdUsuario());
+
         return rutinaRepositorio.save(rutina);
     }
 
     public Rutina modificar(Rutina rutina) {
-        acceso.verificarUsuario(rutina.getUsuario().getIdUsuario());
+
         buscarPorId(rutina.getIdRutina());
         return rutinaRepositorio.save(rutina);
     }
@@ -60,11 +59,10 @@ public class RutinaServicio {
     }
 
     public List<Rutina> buscarPorUsuario(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
+
         return rutinaRepositorio.findByUsuario_IdUsuario(idUsuario);
     }
     public RutinaSemanalDTO obtenerRutinaSemanal(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         List<Rutina> rutinas =
                 rutinaRepositorio.findByUsuario_IdUsuario(idUsuario);
@@ -197,7 +195,6 @@ public class RutinaServicio {
 
     // HU11
     public AjusteRutinaDTO evaluarAjusteRutina(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         List<Rutina> rutinas =
                 rutinaRepositorio.findByUsuario_IdUsuario(idUsuario);

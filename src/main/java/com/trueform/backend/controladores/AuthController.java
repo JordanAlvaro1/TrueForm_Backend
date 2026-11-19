@@ -26,6 +26,8 @@ public class AuthController {
     @Autowired
     private ModelMapper modelMapper;
 
+    // Solo valida las credenciales para la interfaz. NO crea una sesion de usuario
+    // ni protege los endpoints. Versión de practica local SIN Security.
     @PostMapping("/login")
     public ResponseEntity<UsuarioDTO> login(
             @RequestBody LoginDTO loginDTO) {

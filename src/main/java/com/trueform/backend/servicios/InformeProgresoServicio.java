@@ -16,11 +16,9 @@ import java.util.List;
 public class InformeProgresoServicio {
     @Autowired
     private ProgresoRepositorio repositorio;
-    @Autowired
-    private AccesoServicio acceso;
 
     public ComparacionMensualDTO comparar(Long idUsuario, YearMonth mesBase, YearMonth mesComparado) {
-        acceso.verificarUsuario(idUsuario);
+
         if (mesBase.equals(mesComparado)) {
             throw new IllegalArgumentException("Selecciona dos meses diferentes.");
         }
@@ -47,7 +45,7 @@ public class InformeProgresoServicio {
     }
 
     public ResumenProgresoDTO obtenerResumen(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
+
         return resumen(idUsuario, "Historial completo", repositorio.findByUsuario_IdUsuario(idUsuario));
     }
 

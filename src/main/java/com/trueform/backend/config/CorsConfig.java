@@ -13,7 +13,9 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(
                         "http://localhost:5500",
-                        "http://127.0.0.1:5500"
+                        "http://127.0.0.1:5500",
+                        "http://localhost:4200",
+                        "http://127.0.0.1:4200"
                 )
                 .allowedMethods(
                         "GET",
@@ -23,7 +25,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "OPTIONS"
                 )
                 .allowedHeaders("*")
-                .allowCredentials(true)
+                // En esta versión local no se utilizan cookies de autenticación.
+                .allowCredentials(false)
                 .exposedHeaders("Content-Disposition");
     }
 }

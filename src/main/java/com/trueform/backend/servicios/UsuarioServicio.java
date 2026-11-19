@@ -13,19 +13,18 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public class UsuarioServicio {
-    @Autowired
-    private AccesoServicio acceso;
+
     @Autowired
     private
     UsuarioRepositorio usuarioRepositorio;
 
     public List<Usuario> listar() {
-        return java.util.List.of(usuarioRepositorio.findById(acceso.idActual()).orElseThrow());
+        return usuarioRepositorio.findAll();
     }
 
     public Usuario buscarPorId(Long id) {
         Usuario encontrado = usuarioRepositorio.findById(id).orElse(null);
-        if (encontrado != null) acceso.verificarUsuario(encontrado.getIdUsuario());
+
         return encontrado;
     }
 
@@ -35,7 +34,7 @@ public class UsuarioServicio {
     }
 
     public Usuario modificar(Usuario usuario) {
-        acceso.verificarUsuario(usuario.getIdUsuario());
+
         buscarPorId(usuario.getIdUsuario());
         return usuarioRepositorio.save(usuario);
     }
@@ -53,7 +52,7 @@ public class UsuarioServicio {
     private ObjetivoServicio objetivoServicio;
 
     public Usuario seleccionarObjetivo(Long idUsuario, Long idObjetivo) {
-        acceso.verificarUsuario(idUsuario);
+
         Usuario usuario = usuarioRepositorio.findById(idUsuario).orElse(null);
         Objetivo objetivo = objetivoServicio.buscarPorId(idObjetivo);
 
@@ -66,7 +65,6 @@ public class UsuarioServicio {
     }
     // HU5 - Obtener recomendaciones iniciales según nivel y objetivo
     public RecomendacionInicialDTO obtenerRecomendacionInicial(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         Usuario usuario = usuarioRepositorio.findById(idUsuario).orElse(null);
 

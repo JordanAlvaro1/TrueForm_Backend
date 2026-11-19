@@ -15,12 +15,12 @@ import static org.mockito.Mockito.*;
 
 class InformeProgresoTests {
     private final ProgresoRepositorio repo = mock(ProgresoRepositorio.class);
-    private final AccesoServicio acceso = mock(AccesoServicio.class);
+
     private final InformeProgresoServicio servicio = new InformeProgresoServicio();
 
     @BeforeEach void preparar() {
         ReflectionTestUtils.setField(servicio, "repositorio", repo);
-        ReflectionTestUtils.setField(servicio, "acceso", acceso);
+
     }
     private Progreso dato(long id, String fecha, String peso, String cumplimiento) {
         Progreso p = new Progreso();
@@ -44,7 +44,7 @@ class InformeProgresoTests {
         assertEquals(new BigDecimal("-2.00"), r.getDiferenciaPesoPromedioKg());
         assertEquals(new BigDecimal("30.00"), r.getDiferenciaCumplimientoPuntos());
         assertEquals(1, r.getMeses().get(0).getRegistrosConPeso());
-        verify(acceso).verificarUsuario(1L);
+
         verify(repo).findByUsuario_IdUsuarioAndFechaRegistroGreaterThanEqualAndFechaRegistroLessThanOrderByFechaRegistroAsc(
                 1L, LocalDateTime.of(2026,8,1,0,0), LocalDateTime.of(2026,9,1,0,0));
     }
@@ -82,11 +82,6 @@ class InformeProgresoTests {
     }
     @Test void rechazaMesesIguales() {
         assertThrows(IllegalArgumentException.class, () -> servicio.comparar(1L, YearMonth.of(2026,8), YearMonth.of(2026,8)));
-        verifyNoInteractions(repo);
-    }
-    @Test void noConsultaDatosSiElUsuarioNoTienePermiso() {
-        doThrow(new org.springframework.security.access.AccessDeniedException("No permitido")).when(acceso).verificarUsuario(2L);
-        assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> servicio.obtenerResumen(2L));
         verifyNoInteractions(repo);
     }
 }

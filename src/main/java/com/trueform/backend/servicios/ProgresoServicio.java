@@ -23,8 +23,7 @@ import java.util.Locale;
 
 @Service
 public class ProgresoServicio {
-    @Autowired
-    private AccesoServicio acceso;
+
     @Autowired
     private
     ProgresoRepositorio progresoRepositorio;
@@ -43,24 +42,24 @@ public class ProgresoServicio {
 
 
     public List<Progreso> listar() {
-        return progresoRepositorio.findByUsuario_IdUsuario(acceso.idActual());
+        return progresoRepositorio.findAll();
     }
 
     public Progreso buscarPorId(Long id) {
         Progreso encontrado = progresoRepositorio.findById(id).orElse(null);
-        if (encontrado != null) acceso.verificarUsuario(encontrado.getUsuario().getIdUsuario());
+
         return encontrado;
     }
 
     public Progreso registrar(Progreso progreso) {
-        acceso.verificarUsuario(progreso.getUsuario().getIdUsuario());
-        acceso.verificarRutina(progreso.getRutina().getIdRutina());
+
+
         return progresoRepositorio.save(progreso);
     }
 
     public Progreso modificar(Progreso progreso) {
-        acceso.verificarUsuario(progreso.getUsuario().getIdUsuario());
-        acceso.verificarRutina(progreso.getRutina().getIdRutina());
+
+
         buscarPorId(progreso.getIdProgreso());
         return progresoRepositorio.save(progreso);
     }
@@ -71,7 +70,7 @@ public class ProgresoServicio {
     }
 
     public List<Progreso> buscarPorUsuario(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
+
         return progresoRepositorio.findByUsuario_IdUsuario(idUsuario);
     }
     // HU9 - Finalizar rutina y registrar progreso
@@ -79,8 +78,7 @@ public class ProgresoServicio {
             Long idUsuario,
             Long idRutina,
             BigDecimal porcentajeCumplimiento) {
-        acceso.verificarUsuario(idUsuario);
-        acceso.verificarRutina(idRutina);
+
 
         Usuario usuario = usuarioServicio.buscarPorId(idUsuario);
         Rutina rutina = rutinaServicio.buscarPorId(idRutina);
@@ -130,7 +128,6 @@ public class ProgresoServicio {
     }
     // HU10 - Obtener progreso de la semana actual
     public ProgresoSemanalDTO obtenerProgresoSemanal(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         LocalDate hoy = LocalDate.now();
 
@@ -228,7 +225,6 @@ public class ProgresoServicio {
 
     // HU12 - Generar recomendación automática según el progreso
     public RecomendacionProgresoDTO obtenerRecomendacionProgreso(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         Usuario usuario = usuarioServicio.buscarPorId(idUsuario);
 
@@ -316,7 +312,6 @@ public class ProgresoServicio {
     }
     // HU14 - Generar recomendaciones avanzadas de optimización
     public RecomendacionAvanzadaDTO obtenerRecomendacionAvanzada(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         Usuario usuario = usuarioServicio.buscarPorId(idUsuario);
 
@@ -437,7 +432,6 @@ public class ProgresoServicio {
 
     // HU16 - Obtener historial detallado de progreso físico
     public HistorialProgresoDTO obtenerHistorialProgreso(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
 
         Usuario usuario = usuarioServicio.buscarPorId(idUsuario);
 

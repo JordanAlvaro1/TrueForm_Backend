@@ -9,29 +9,28 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class RutinaEjercicioServicio {
-    @Autowired
-    private AccesoServicio acceso;
+
     @Autowired
     private
     RutinaEjercicioRepositorio rutinaEjercicioRepositorio;
 
     public List<RutinaEjercicio> listar() {
-        return rutinaEjercicioRepositorio.findByRutina_Usuario_IdUsuario(acceso.idActual());
+        return rutinaEjercicioRepositorio.findAll();
     }
 
     public RutinaEjercicio buscarPorId(Long id) {
         RutinaEjercicio encontrado = rutinaEjercicioRepositorio.findById(id).orElse(null);
-        if (encontrado != null) acceso.verificarUsuario(encontrado.getRutina().getUsuario().getIdUsuario());
+
         return encontrado;
     }
 
     public RutinaEjercicio registrar(RutinaEjercicio rutinaEjercicio) {
-        acceso.verificarUsuario(rutinaEjercicio.getRutina().getUsuario().getIdUsuario());
+
         return rutinaEjercicioRepositorio.save(rutinaEjercicio);
     }
 
     public RutinaEjercicio modificar(RutinaEjercicio rutinaEjercicio) {
-        acceso.verificarUsuario(rutinaEjercicio.getRutina().getUsuario().getIdUsuario());
+
         buscarPorId(rutinaEjercicio.getIdRutinaEjercicio());
         return rutinaEjercicioRepositorio.save(rutinaEjercicio);
     }
@@ -42,7 +41,7 @@ public class RutinaEjercicioServicio {
     }
 
     public List<RutinaEjercicio> buscarPorRutina(Long idRutina) {
-        acceso.verificarRutina(idRutina);
+
         return rutinaEjercicioRepositorio.findByRutina_IdRutina(idRutina);
     }
 
@@ -52,7 +51,6 @@ public class RutinaEjercicioServicio {
             Long idRutina,
             String diaSemana,
             Integer posicion) {
-        acceso.verificarRutina(idRutina);
 
         List<RutinaEjercicio> ejercicios =
                 rutinaEjercicioRepositorio

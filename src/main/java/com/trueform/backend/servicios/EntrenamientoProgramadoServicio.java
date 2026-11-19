@@ -10,22 +10,21 @@ import com.trueform.backend.dto.ResumenSemanalDTO;
 
 @Service
 public class EntrenamientoProgramadoServicio {
-    @Autowired
-    private AccesoServicio acceso;
+
     @Autowired
     private EntrenamientoProgramadoRepositorio repositorio;
 
     public EntrenamientoProgramado buscarPorId(Long id) {
         EntrenamientoProgramado encontrado = repositorio.findById(id).orElse(null);
-        if (encontrado != null) acceso.verificarUsuario(encontrado.getRutina().getUsuario().getIdUsuario());
+
         return encontrado;
     }
     public EntrenamientoProgramado registrar(EntrenamientoProgramado entidad) {
-        acceso.verificarUsuario(entidad.getRutina().getUsuario().getIdUsuario());
+
         return repositorio.save(entidad);
     }
     public EntrenamientoProgramado modificar(EntrenamientoProgramado entidad) {
-        acceso.verificarUsuario(entidad.getRutina().getUsuario().getIdUsuario());
+
         buscarPorId(entidad.getIdProgramacion());
         return repositorio.save(entidad);
     }
@@ -34,11 +33,11 @@ public class EntrenamientoProgramadoServicio {
         repositorio.deleteById(id);
     }
     public List<EntrenamientoProgramado> buscarPorUsuario(Long idUsuario) {
-        acceso.verificarUsuario(idUsuario);
+
         return repositorio.findByRutina_Usuario_IdUsuarioOrderByFechaAsc(idUsuario);
     }
     public ResumenSemanalDTO resumenSemanal(Long idUsuario, LocalDate fecha) {
-        acceso.verificarUsuario(idUsuario);
+
         LocalDate inicio = fecha.minusDays(fecha.getDayOfWeek().getValue() - 1);
         LocalDate fin = inicio.plusDays(6);
         int completados = 0;

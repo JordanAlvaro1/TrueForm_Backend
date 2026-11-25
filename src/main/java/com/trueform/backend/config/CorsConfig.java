@@ -15,18 +15,13 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://localhost:5500",
                         "http://127.0.0.1:5500",
                         "http://localhost:4200",
-                        "http://127.0.0.1:4200"
+                        "http://127.0.0.1:4200",
+                        "https://jordanalvaro1.github.io"
                 )
                 .allowedMethods(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE",
-                        "OPTIONS",
-                        "PATCH"
+                        "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
                 )
                 .allowedHeaders("*")
-                // En esta versión local no se utilizan cookies de autenticación.
                 .allowCredentials(false)
                 .exposedHeaders("Content-Disposition");
     }

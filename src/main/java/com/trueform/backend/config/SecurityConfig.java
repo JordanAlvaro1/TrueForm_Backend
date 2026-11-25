@@ -68,6 +68,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
 
+			.requestMatchers(
+       				 "/swagger-ui/**",
+        			"/swagger-ui.html",
+        			"/v3/api-docs",
+       				"/v3/api-docs/**"
+			).permitAll()
                         // Login JWT y registro de nuevos usuarios
                         .requestMatchers(
                                 HttpMethod.POST,

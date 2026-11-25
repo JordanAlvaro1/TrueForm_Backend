@@ -16,7 +16,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://127.0.0.1:5500",
                         "http://localhost:4200",
                         "http://127.0.0.1:4200",
-                        "https://jordanalvaro1.github.io"
+                        "https://jordanalvaro1.github.io",
+                        "https://trueform-frontend.onrender.com"
                 )
                 .allowedMethods(
                         "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"

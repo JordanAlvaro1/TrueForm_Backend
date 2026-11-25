@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import com.trueform.backend.dto.UsuarioDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class OnboardingControlador {
     private ModelMapper modelMapper;
 
     @PostMapping("/onboarding")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0.idUsuario, authentication)")
     public ResponseEntity<UsuarioDTO> onboarding(@Valid @RequestBody OnboardingDTO dto) {
         if (!dto.getNivel().equals("principiante") && !dto.getNivel().equals("intermedio") && !dto.getNivel().equals("avanzado")) {
             return ResponseEntity.badRequest().build();
@@ -38,6 +40,7 @@ public class OnboardingControlador {
     }
 
     @PutMapping("/{idUsuario}/objetivo")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<?> seleccionarObjetivo(
             @PathVariable Long idUsuario,
             @Valid

@@ -6,6 +6,7 @@ import com.trueform.backend.servicios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class EntrenamientoProgramadoController {
             && (dto.getEstado().equals("pendiente") || dto.getEstado().equals("completado") || dto.getEstado().equals("cancelado"));
     }
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearProgramacion(#p0, authentication)")
     public ResponseEntity<EntrenamientoProgramadoDTO> registrar(@RequestBody EntrenamientoProgramadoDTO dto) {
         if (!datosValidos(dto)) return ResponseEntity.badRequest().build();
         if (dto.getEstado().equals("completado") && dto.getFecha().isAfter(LocalDate.now())) return ResponseEntity.badRequest().build();
@@ -38,6 +40,7 @@ public class EntrenamientoProgramadoController {
         return ResponseEntity.ok(convertirADTO(programadoServicio.registrar(entrenamiento)));
     }
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarProgramacion(#p0, authentication)")
     public ResponseEntity<EntrenamientoProgramadoDTO> modificar(@RequestBody EntrenamientoProgramadoDTO dto) {
         if (dto.getIdProgramacion() == null || !datosValidos(dto)) return ResponseEntity.badRequest().build();
         if (dto.getEstado().equals("completado") && dto.getFecha().isAfter(LocalDate.now())) return ResponseEntity.badRequest().build();
@@ -54,12 +57,14 @@ public class EntrenamientoProgramadoController {
         return ResponseEntity.ok(convertirADTO(programadoServicio.modificar(entrenamiento)));
     }
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esProgramacionActual(#p0, authentication)")
     public ResponseEntity<EntrenamientoProgramadoDTO> buscarPorId(@PathVariable Long id) {
         EntrenamientoProgramado entrenamiento = programadoServicio.buscarPorId(id);
         if (entrenamiento == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(convertirADTO(entrenamiento));
     }
     @GetMapping("/usuario/{idUsuario}")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<List<EntrenamientoProgramadoDTO>> buscarPorUsuario(@PathVariable Long idUsuario) {
         if (usuarioServicio.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         List<EntrenamientoProgramadoDTO> respuesta = new ArrayList<>();
@@ -67,6 +72,7 @@ public class EntrenamientoProgramadoController {
         return ResponseEntity.ok(respuesta);
     }
     @GetMapping("/usuario/{idUsuario}/resumen")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<ResumenSemanalDTO> resumen(@PathVariable Long idUsuario, @RequestParam String fecha) {
         if (usuarioServicio.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         try {
@@ -77,6 +83,7 @@ public class EntrenamientoProgramadoController {
         }
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esProgramacionActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (programadoServicio.buscarPorId(id) == null) return ResponseEntity.notFound().build();
         programadoServicio.eliminar(id);

@@ -12,6 +12,9 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
+
 @RestController
 @RequestMapping("/api/progresos/usuario/{idUsuario}")
 public class InformeProgresoController {
@@ -21,8 +24,14 @@ public class InformeProgresoController {
     private UsuarioServicio usuarios;
 
     @GetMapping("/comparacion-mensual")
-    public ResponseEntity<?> comparar(@PathVariable Long idUsuario,
-            @RequestParam String mesBase, @RequestParam String mesComparado) {
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
+    public ResponseEntity<?> comparar(
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario,
+            @RequestParam String mesBase,
+            @RequestParam String mesComparado) {
         if (usuarios.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         try {
             if (!mesBase.matches("[0-9]{4}-[0-9]{2}") || !mesComparado.matches("[0-9]{4}-[0-9]{2}")) {
@@ -41,13 +50,23 @@ public class InformeProgresoController {
     }
 
     @GetMapping("/resumen")
-    public ResponseEntity<ResumenProgresoDTO> resumen(@PathVariable Long idUsuario) {
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
+    public ResponseEntity<ResumenProgresoDTO> resumen(
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
         if (usuarios.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(informes.obtenerResumen(idUsuario));
     }
 
     @GetMapping("/exportar")
-    public ResponseEntity<?> exportar(@PathVariable Long idUsuario) {
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
+    public ResponseEntity<?> exportar(
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
         if (usuarios.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         ResumenProgresoDTO resumen = informes.obtenerResumen(idUsuario);
         if (!resumen.isHayDatos()) {

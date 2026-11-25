@@ -12,6 +12,7 @@ import com.trueform.backend.dto.EjercicioGuiadoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 @RestController
@@ -28,6 +29,7 @@ public class RutinaEjercicioController {
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<RutinaEjercicioDTO> listar() {
 
         return rutinaEjercicioServicio.listar()
@@ -37,6 +39,7 @@ public class RutinaEjercicioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRutinaEjercicioActual(#p0, authentication)")
     public ResponseEntity<RutinaEjercicioDTO> buscarPorId(
             @PathVariable Long id) {
 
@@ -51,6 +54,7 @@ public class RutinaEjercicioController {
     }
 
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearRutinaEjercicio(#p0, authentication)")
     public ResponseEntity<RutinaEjercicioDTO> registrar(
             @RequestBody RutinaEjercicioDTO rutinaEjercicioDTO) {
         if (rutinaEjercicioDTO.getIdRutina() == null ||
@@ -98,6 +102,7 @@ public class RutinaEjercicioController {
     }
 
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarRutinaEjercicio(#p0, authentication)")
     public ResponseEntity<RutinaEjercicioDTO> modificar(
             @RequestBody RutinaEjercicioDTO rutinaEjercicioDTO) {
         if (rutinaEjercicioDTO.getIdRutinaEjercicio() == null) return ResponseEntity.badRequest().build();
@@ -155,6 +160,7 @@ public class RutinaEjercicioController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRutinaEjercicioActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
         RutinaEjercicio rutinaEjercicio =
@@ -174,6 +180,7 @@ public class RutinaEjercicioController {
     }
 
     @GetMapping("/rutina/{idRutina}")
+    @PreAuthorize("@propiedadSeguridad.esRutinaActual(#p0, authentication)")
     public List<RutinaEjercicioDTO> buscarPorRutina(
             @PathVariable Long idRutina) {
 
@@ -184,6 +191,7 @@ public class RutinaEjercicioController {
     }
 
     @GetMapping("/{id}/descanso")
+    @PreAuthorize("@propiedadSeguridad.esRutinaEjercicioActual(#p0, authentication)")
     public ResponseEntity<DescansoDTO> descanso(@PathVariable Long id) {
         RutinaEjercicio ejercicio = rutinaEjercicioServicio.buscarPorId(id);
         if (ejercicio == null) return ResponseEntity.notFound().build();
@@ -195,6 +203,7 @@ public class RutinaEjercicioController {
 
     // HU8 - Iniciar rutina guiada paso a paso
     @GetMapping("/rutina/{idRutina}/dia/{diaSemana}/guiada")
+    @PreAuthorize("@propiedadSeguridad.esRutinaActual(#p0, authentication)")
     public ResponseEntity<EjercicioGuiadoDTO> obtenerEjercicioGuiado(
             @PathVariable Long idRutina,
             @PathVariable String diaSemana,

@@ -1,50 +1,130 @@
+
 package com.trueform.backend.config;
 
-import com.trueform.backend.repositorios.UsuarioRepositorio;
+import com.trueform.backend.security.filters.JwtRequestFilter;
+import com.trueform.backend.security.servicios.CustomUserDetailsService;
+import com.trueform.backend.security.util.JwtUtil;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
-@org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
-    @Bean
-    public UserDetailsService userDetailsService(UsuarioRepositorio repositorio) {
-        return email -> {
-            com.trueform.backend.entidades.Usuario usuario = repositorio
-                    .findByEmailIgnoreCase(email.trim())
-                    .orElseThrow(() -> new UsernameNotFoundException("Credenciales incorrectas"));
-            String rol = "ADMIN".equals(usuario.getRol()) ? "ADMIN" : "USER";
-            return new UsuarioAutenticado(usuario.getIdUsuario(), usuario.getEmail(), usuario.getPasswordHash(), rol);
-        };
+
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
+
+    public SecurityConfig(
+            CustomUserDetailsService userDetailsService,
+            JwtUtil jwtUtil) {
+
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-            UserDetailsService usuarios, PasswordEncoder encoder) throws Exception {
-        DaoAuthenticationProvider proveedor = new DaoAuthenticationProvider(usuarios);
-        proveedor.setPasswordEncoder(encoder);
-        http.authenticationProvider(proveedor)
-            .cors(Customizer.withDefaults())
-            .securityContext(context -> context.securityContextRepository(
-                new org.springframework.security.web.context.RequestAttributeSecurityContextRepository()))
-            // Se conserva la protección CSRF predeterminada de Spring.
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/error", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/csrf", "/api/objetivos", "/api/objetivos/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/usuarios").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/ejercicios", "/api/ejercicios/**").authenticated()
-                .requestMatchers("/api/objetivos", "/api/objetivos/**", "/api/ejercicios", "/api/ejercicios/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout.disable());
-        return http.build();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration)
+            throws Exception {
+
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
+
+        return http
+                .cors(Customizer.withDefaults())
+
+                .csrf(AbstractHttpConfigurer::disable)
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
+                )
+
+
+                .authorizeHttpRequests(auth -> auth
+
+                        // Permitir las solicitudes CORS previas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
+
+                        // Login JWT y registro de nuevos usuarios
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/login-jwt",
+                                "/api/usuarios"
+                        ).permitAll()
+
+                        // Deshabilitar el login antiguo sin JWT
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/login"
+                        ).denyAll()
+
+                        // Catálogos y recursos educativos públicos
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/objetivos/**",
+                                "/api/ejercicios/**",
+                                "/api/glosario/buscar",
+                                "/api/tips/hoy"
+                        ).permitAll()
+
+                        // Toda la administración exige rol ADMIN
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
+                        // Todo lo demás requiere autenticación JWT
+                        .anyRequest().authenticated()
+                )
+
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(
+                                (request, response, exception) ->
+                                        response.sendError(
+                                                HttpServletResponse.SC_UNAUTHORIZED
+                                        )
+                        )
+                        .accessDeniedHandler(
+                                (request, response, exception) ->
+                                        response.sendError(
+                                                HttpServletResponse.SC_FORBIDDEN
+                                        )
+                        )
+                )
+
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+
+                .addFilterBefore(
+                        new JwtRequestFilter(
+                                userDetailsService,
+                                jwtUtil
+                        ),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
+                .build();
     }
 }

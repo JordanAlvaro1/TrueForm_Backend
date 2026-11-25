@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
+
 @RestController @RequestMapping("/api/ejercicios")
 public class EjercicioController {
     @Autowired private EjercicioServicio ejercicioServicio;
@@ -33,19 +37,23 @@ public class EjercicioController {
         if (ejercicio == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(modelMapper.map(ejercicio, EjercicioDTO.class));
     }
+
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EjercicioDTO> registrar(@RequestBody EjercicioDTO dto) {
         if (!datosValidos(dto)) return ResponseEntity.badRequest().build();
         Ejercicio ejercicio = modelMapper.map(dto, Ejercicio.class); ejercicio.setIdEjercicio(null);
         return ResponseEntity.ok(modelMapper.map(ejercicioServicio.registrar(ejercicio), EjercicioDTO.class));
     }
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EjercicioDTO> modificar(@RequestBody EjercicioDTO dto) {
         if (dto.getIdEjercicio() == null || !datosValidos(dto)) return ResponseEntity.badRequest().build();
         if (ejercicioServicio.buscarPorId(dto.getIdEjercicio()) == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(modelMapper.map(ejercicioServicio.modificar(modelMapper.map(dto, Ejercicio.class)), EjercicioDTO.class));
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (ejercicioServicio.buscarPorId(id) == null) return ResponseEntity.notFound().build();
         try { ejercicioServicio.eliminar(id); }

@@ -10,8 +10,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.trueform.backend.dto.RutinaSemanalDTO;
 
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class RutinaController {
     private ModelMapper modelMapper;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<RutinaDTO> listar() {
 
         return rutinaServicio.listar()
@@ -38,6 +41,7 @@ public class RutinaController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRutinaActual(#p0, authentication)")
     public ResponseEntity<RutinaDTO> buscarPorId(@PathVariable Long id) {
 
         Rutina rutina = rutinaServicio.buscarPorId(id);
@@ -50,6 +54,7 @@ public class RutinaController {
     }
 
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearRutina(#p0, authentication)")
     public ResponseEntity<RutinaDTO> registrar(
             @RequestBody RutinaDTO rutinaDTO) {
         if (rutinaDTO.getIdUsuario() == null ||
@@ -85,6 +90,7 @@ public class RutinaController {
     }
 
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarRutina(#p0, authentication)")
     public ResponseEntity<RutinaDTO> modificar(
             @RequestBody RutinaDTO rutinaDTO) {
         if (rutinaDTO.getIdRutina() == null) return ResponseEntity.badRequest().build();
@@ -130,6 +136,7 @@ public class RutinaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRutinaActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
         Rutina rutina = rutinaServicio.buscarPorId(id);
@@ -149,8 +156,12 @@ public class RutinaController {
 
     // HU3 - Consultar rutina semanal del usuario
     @GetMapping("/usuario/{idUsuario}/semanal")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<RutinaSemanalDTO> obtenerRutinaSemanal(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         RutinaSemanalDTO rutinaSemanal =
                 rutinaServicio.obtenerRutinaSemanal(idUsuario);
@@ -162,9 +173,15 @@ public class RutinaController {
         return ResponseEntity.ok(rutinaSemanal);
     }
 
+
     @GetMapping("/usuario/{idUsuario}")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public List<RutinaDTO> buscarPorUsuario(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
+
 
         return rutinaServicio.buscarPorUsuario(idUsuario)
                 .stream()
@@ -174,8 +191,12 @@ public class RutinaController {
 
     // HU11 - Evaluar estancamiento y recomendar ajuste
     @GetMapping("/usuario/{idUsuario}/ajuste")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<AjusteRutinaDTO> evaluarAjusteRutina(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         AjusteRutinaDTO resultado =
                 rutinaServicio.evaluarAjusteRutina(idUsuario);

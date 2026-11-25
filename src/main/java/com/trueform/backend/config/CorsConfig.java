@@ -22,7 +22,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "POST",
                         "PUT",
                         "DELETE",
-                        "OPTIONS"
+                        "OPTIONS",
+                        "PATCH"
                 )
                 .allowedHeaders("*")
                 // En esta versión local no se utilizan cookies de autenticación.

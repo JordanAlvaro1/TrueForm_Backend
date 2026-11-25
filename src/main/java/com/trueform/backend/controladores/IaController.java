@@ -6,6 +6,7 @@ import com.trueform.backend.servicios.IaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/ia")
@@ -16,6 +17,7 @@ public class IaController {
 
     // HU13
     @PostMapping("/chat")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0.idUsuario, authentication)")
     public ResponseEntity<IaResponseDTO> responderPregunta(
             @RequestBody IaRequestDTO request) {
 

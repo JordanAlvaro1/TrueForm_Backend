@@ -10,6 +10,9 @@ import com.trueform.backend.servicios.UsuarioServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 @RestController
@@ -25,6 +28,7 @@ public class ProgresoController {
     private RutinaServicio rutinaServicio;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ProgresoDTO> listar() {
 
         return progresoServicio.listar()
@@ -34,6 +38,7 @@ public class ProgresoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esProgresoActual(#p0, authentication)")
     public ResponseEntity<ProgresoDTO> buscarPorId(
             @PathVariable Long id) {
 
@@ -48,6 +53,7 @@ public class ProgresoController {
     }
 
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearProgreso(#p0, authentication)")
     public ResponseEntity<ProgresoDTO> registrar(
             @RequestBody ProgresoDTO progresoDTO) {
         if (progresoDTO.getIdUsuario() == null || progresoDTO.getIdRutina() == null) return ResponseEntity.badRequest().build();
@@ -96,6 +102,7 @@ public class ProgresoController {
     }
 
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarProgreso(#p0, authentication)")
     public ResponseEntity<ProgresoDTO> modificar(
             @RequestBody ProgresoDTO progresoDTO) {
         if (progresoDTO.getIdProgreso() == null) return ResponseEntity.badRequest().build();
@@ -151,6 +158,7 @@ public class ProgresoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esProgresoActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id) {
 
@@ -171,8 +179,12 @@ public class ProgresoController {
     }
 
     @GetMapping("/usuario/{idUsuario}")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public List<ProgresoDTO> buscarPorUsuario(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         return progresoServicio.buscarPorUsuario(idUsuario)
                 .stream()
@@ -182,6 +194,7 @@ public class ProgresoController {
 
     // HU9 - Finalizar rutina y registrar progreso
     @PostMapping("/finalizar")
+    @PreAuthorize("@propiedadSeguridad.puedeFinalizarRutina(#p0, #p1, authentication)")
     public ResponseEntity<FinalizarRutinaDTO> finalizarRutina(
             @RequestParam Long idUsuario,
             @RequestParam Long idRutina,
@@ -214,8 +227,12 @@ public class ProgresoController {
 
     // HU10 - Visualizar progreso semanal
     @GetMapping("/usuario/{idUsuario}/semanal")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<ProgresoSemanalDTO> obtenerProgresoSemanal(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         Usuario usuario = usuarioServicio.buscarPorId(idUsuario);
 
@@ -231,8 +248,12 @@ public class ProgresoController {
 
     // HU12 - Recomendaciones automáticas basadas en el progreso
     @GetMapping("/usuario/{idUsuario}/recomendacion")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<RecomendacionProgresoDTO> obtenerRecomendacionProgreso(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         RecomendacionProgresoDTO resultado =
                 progresoServicio.obtenerRecomendacionProgreso(idUsuario);
@@ -246,8 +267,12 @@ public class ProgresoController {
 
     // HU14 - Obtener recomendaciones avanzadas de optimización
     @GetMapping("/usuario/{idUsuario}/recomendacion-avanzada")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<RecomendacionAvanzadaDTO> obtenerRecomendacionAvanzada(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         RecomendacionAvanzadaDTO resultado =
                 progresoServicio.obtenerRecomendacionAvanzada(idUsuario);
@@ -262,8 +287,12 @@ public class ProgresoController {
 
     // HU16 - Obtener historial detallado de progreso físico
     @GetMapping("/usuario/{idUsuario}/historial")
+    @PreAuthorize(
+            "@propiedadSeguridad.esUsuarioActual(#idUsuario, authentication)"
+    )
     public ResponseEntity<HistorialProgresoDTO> obtenerHistorialProgreso(
-            @PathVariable Long idUsuario) {
+            @PathVariable("idUsuario")
+            @P("idUsuario") Long idUsuario) {
 
         HistorialProgresoDTO resultado =
                 progresoServicio.obtenerHistorialProgreso(idUsuario);

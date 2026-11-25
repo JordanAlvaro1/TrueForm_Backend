@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 @RestController
@@ -44,6 +45,7 @@ public class ObjetivoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjetivoDTO> registrar(
             @RequestBody ObjetivoDTO objetivoDTO) {
         if (objetivoDTO.getNombreObjetivo() == null) return ResponseEntity.badRequest().build();
@@ -64,6 +66,7 @@ public class ObjetivoController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjetivoDTO> modificar(
             @RequestBody ObjetivoDTO objetivoDTO) {
         if (objetivoDTO.getIdObjetivo() == null) return ResponseEntity.badRequest().build();
@@ -94,6 +97,7 @@ public class ObjetivoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
         Objetivo objetivo = objetivoServicio.buscarPorId(id);

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ public class UsuarioController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UsuarioDTO> listar() {
 
         return usuarioServicio.listar()
@@ -44,6 +46,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
 
         Usuario usuario = usuarioServicio.buscarPorId(id);
@@ -129,6 +132,7 @@ public class UsuarioController {
     }
 
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarUsuario(#p0, authentication)")
     public ResponseEntity<UsuarioDTO> modificar(
             @Valid @RequestBody ActualizarUsuarioDTO actualizarUsuarioDTO) {
         if (actualizarUsuarioDTO.getIdUsuario() == null ||
@@ -194,6 +198,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
         Usuario usuario = usuarioServicio.buscarPorId(id);
@@ -212,6 +217,7 @@ public class UsuarioController {
     }
     // HU5 - Visualizar recomendaciones iniciales en Home
     @GetMapping("/{idUsuario}/recomendaciones")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<RecomendacionInicialDTO> obtenerRecomendaciones(
             @PathVariable Long idUsuario) {
 

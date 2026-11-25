@@ -6,6 +6,7 @@ import com.trueform.backend.servicios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class FavoritoController {
     private EjercicioServicio ejercicioServicio;
 
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearFavorito(#p0, authentication)")
     public ResponseEntity<FavoritoDTO> registrar(@RequestBody FavoritoDTO dto) {
         if (dto.getIdUsuario() == null || dto.getIdEjercicio() == null) return ResponseEntity.badRequest().build();
         Usuario usuario = usuarioServicio.buscarPorId(dto.getIdUsuario());
@@ -38,6 +40,7 @@ public class FavoritoController {
         }
     }
     @GetMapping("/usuario/{idUsuario}")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<List<FavoritoDTO>> buscarPorUsuario(@PathVariable Long idUsuario) {
         if (usuarioServicio.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         List<FavoritoDTO> respuesta = new ArrayList<>();
@@ -45,6 +48,7 @@ public class FavoritoController {
         return ResponseEntity.ok(respuesta);
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esFavoritoActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (favoritoServicio.buscarPorId(id) == null) return ResponseEntity.notFound().build();
         favoritoServicio.eliminar(id);

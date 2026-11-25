@@ -6,6 +6,7 @@ import com.trueform.backend.servicios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class RegistroEntrenamientoController {
             && dto.getPesoKg().compareTo(new BigDecimal("999999.99")) <= 0 && dto.getPesoKg().scale() <= 2;
     }
     @PostMapping
+    @PreAuthorize("@propiedadSeguridad.puedeCrearRegistro(#p0, authentication)")
     public ResponseEntity<RegistroEntrenamientoDTO> registrar(@RequestBody RegistroEntrenamientoDTO dto) {
         if (!datosValidos(dto)) return ResponseEntity.badRequest().build();
         Rutina rutina = rutinaServicio.buscarPorId(dto.getIdRutina());
@@ -49,6 +51,7 @@ public class RegistroEntrenamientoController {
         return ResponseEntity.ok(convertirADTO(registroServicio.registrar(registro)));
     }
     @PutMapping
+    @PreAuthorize("@propiedadSeguridad.puedeModificarRegistro(#p0, authentication)")
     public ResponseEntity<RegistroEntrenamientoDTO> modificar(@RequestBody RegistroEntrenamientoDTO dto) {
         if (dto.getIdRegistro() == null || !datosValidos(dto)) return ResponseEntity.badRequest().build();
         RegistroEntrenamiento registro = registroServicio.buscarPorId(dto.getIdRegistro());
@@ -64,23 +67,27 @@ public class RegistroEntrenamientoController {
         return ResponseEntity.ok(convertirADTO(registroServicio.modificar(registro)));
     }
     @GetMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRegistroActual(#p0, authentication)")
     public ResponseEntity<RegistroEntrenamientoDTO> buscarPorId(@PathVariable Long id) {
         RegistroEntrenamiento registro = registroServicio.buscarPorId(id);
         if (registro == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(convertirADTO(registro));
     }
     @GetMapping("/usuario/{idUsuario}")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<List<RegistroEntrenamientoDTO>> buscarPorUsuario(@PathVariable Long idUsuario) {
         if (usuarioServicio.buscarPorId(idUsuario) == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(convertirLista(registroServicio.buscarPorUsuario(idUsuario)));
     }
     @GetMapping("/usuario/{idUsuario}/ejercicio/{idEjercicio}")
+    @PreAuthorize("@propiedadSeguridad.esUsuarioActual(#p0, authentication)")
     public ResponseEntity<List<RegistroEntrenamientoDTO>> historial(@PathVariable Long idUsuario, @PathVariable Long idEjercicio) {
         if (usuarioServicio.buscarPorId(idUsuario) == null ||
             ejercicioServicio.buscarPorId(idEjercicio) == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(convertirLista(registroServicio.buscarPorUsuarioYEjercicio(idUsuario, idEjercicio)));
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("@propiedadSeguridad.esRegistroActual(#p0, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (registroServicio.buscarPorId(id) == null) return ResponseEntity.notFound().build();
         registroServicio.eliminar(id);
